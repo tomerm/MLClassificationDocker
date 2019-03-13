@@ -1,5 +1,5 @@
 **Download the whole stuff from git-hub:**
-git https://github.com/tomerm/MLClassificationDocker
+- git https://github.com/tomerm/MLClassificationDocker
 
 **Build docker:**
 - sudo docker build -t gunicorn-ml-image  ./
