@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "description": "JSON schema for an tokenization request",
+    "type": "object",
+    "$id": "http://ibm.com/blueumbrella/tokenizer_request.json",
+    "properties": {
+        "id": {
+            "description": "The unique id of a request (optional)",
+            "default": "",
+            "examples": [
+                "req_001"
+            ],
+            "type": ["number", "string"]
+        },
+        "language": {
+            "description": "The language of the tokenizer (required)",
+            "default": "",
+            "examples": [
+                "english"
+            ],
+            "type": "string"
+        },
+        "parameters": {
+            "items":{
+                "description": "Extra parameters setting (optional)",
+                "default": [],
+                "examples": [
+                    "[\"algorithm=lucene\", \"ExtraOption=True\", \"This is yet another sentence to be tokenized.\"]"
+                ],
+                "patternProperties": {
+                    "^.*$": {
+                        "anyOf": [
+                          {"type": "string"},
+                          {"type": "null"},
+                          {"type": "number"}
+                        ]
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "text": {
+            "items": {
+                "description": "Text input, (reuqired, either sents or batch)",
+                "default": "",
+                "examples": [
+                    "[\"This is the first sentence.\", \"This is the second input\", \"This is yet another sentence to be tokenized.\"]"
+                ],
+                "type": "string"
+            },
+            "type": "array"
+        }
+    },
+    "required": ["language", "text"]
+}
