@@ -11,3 +11,10 @@
 
 - curl -X POST -k "http://localhost:80/api/v1/analyze" -H "Content-Type:application/json" -d @ar.json
 - curl -X GET -k "http://localhost:80/api/v1/healthcheck" -H "Content-Type:application/json"
+
+**Resources**
+
+All resources, needed for classification documents on the base of the pipe, created in the training and testing phase,
+should be placed into the folder /app/resources. 
+
+Resources collected by the process _Collector_, configured with the option `saveResources=yes`.
