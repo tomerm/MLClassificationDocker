@@ -18,3 +18,5 @@ All resources, needed for classification documents on the base of the pipe, crea
 should be placed into the folder /app/resources. 
 
 Resources collected by the process _Collector_, configured with the option `saveResources=yes`.
+
+![image](https://user-images.githubusercontent.com/5329257/55479242-5406f980-5626-11e9-9df2-752dce940e94.png)
