@@ -3,22 +3,22 @@ import json
 import os.path
 import jsonschema
 import traceback
+import socket
+#from classification.predictor import Predictor
 
 #References the flask app
 app = Flask(__name__)
-
 app.config['JSON_AS_ASCII'] = False
 
 ##Configuration
-MAX_ATTEMPTS = 10
-WAIT_TIME = 30
 request_schema_fn=os.path.join(os.path.dirname(__file__),"resources", "json", "request.jsonschema")
 assert os.path.isfile(request_schema_fn), "%s does not exist"%request_schema_fn
 request_schema = json.load(open(request_schema_fn))
 assert jsonschema.Draft4Validator.check_schema(request_schema) is None, "%s is not valid V1 schema"%request_schema_fn
-payloadSize = 2056 #128 #KB
+payloadSize = 10280 #2056 #KB
 payloadUnit = "KB"
 
+#predictor = Predictor()
 
 """ The Health Check API returns the current health state of the server. """
 @app.route("/api/v1/healthcheck", methods=["GET"])
@@ -53,29 +53,25 @@ def extract_input(request):
 
     # Process according to the correct content type.
     if "application/json" in ctype:
-        # This can be replaced, later, for a json-schema validator. For now, simplicity is better.
         try:
             input = request.get_json(force=True)
             jsonschema.validate(input, request_schema)
             return (input, None)
         except Exception as e:
-            # First, log the error.
-            #app.logger.error("Invalid json input for request. Check result '%s'" % e.message)
-
+            print("Invalid json input for request.") #, e.message)
             # Now, answer the request.
             m = "Invalid JSON input:" + request.get_json(force=True) # % e.message
             resp = app.make_response((json.dumps({"user_message": m}), 400,))
             resp.mimetype = 'application/json'
             return (None, resp)
     else:
-        # First, log the error.
         m = "Unsupported media type: '%s'." % ctype
         resp = app.make_response((json.dumps({"user_message":m}),415,))
         resp.mimetype = 'application/json'
         return (None, resp)
 
 @app.route("/api/v1/analyze", methods=["POST"])
-def tokenize():
+def analyze():
     cl = request.content_length
     if cl is not None and cl > payloadSize * 1024:
         # The content length is over the configured maximum size in kilobytes.
@@ -89,7 +85,6 @@ def tokenize():
         return error_response
 
     # Extract the set of sentences, based on the appropriate content type.
-    # This could be an exception for a better design.
     (input, error_response) = extract_input(request)
     if error_response:
         return error_response
@@ -97,75 +92,69 @@ def tokenize():
     sentences = input["text"]
     rid = input["id"] if "id" in input else None
     parameters = input["parameters"] if "parameters" in input else None
-    language = input["language"]
-
-    # Return now for empty requests.
-    if len(sentences) == 0:
-        res = []
-        try:
-            return assemble_response_v2(sentences, res, rid)
-        except Exception as e:
-            # First, log the error.
-            trace = traceback.format_exc()
-            exc_message = \
-                "An unexpected error has occurred for request: '%s' and stack trace: %s" % (repr(e), trace)
-
-            # Now, answer the request.
-            m = {"user_message": "An unexpected error has occurred."}
-            resp = app.make_response((json.dumps(m), 500,))
-            resp.mimetype = 'application/json'
-            return resp
+    synchronous = input["synchronous"] if "synchronous" in input else None # if empty just respond, otherwise send responce to submitted email
+    if len(sentences) == 0 or rid == None:
+        m = {"user_message": "Either no request ID or empty text has been submitted for classification."}
+        resp = app.make_response((json.dumps(m), 500,))
+        resp.mimetype = 'application/json'
+        return resp
     else:
         try:
-            # Invoke the model summarization.
-            res=[]
-            for s in sentences:
-                error = False #shensis error, r = predictor.predict(s,language)
-                r = 'processed' #shensis temp 
-                if not error:
-                    res.append(r)
-                else:
-                    m = {"user_message": "Unsupport language %s." % language}
-                    resp = app.make_response((json.dumps(m), 500,))
-                    resp.mimetype = 'application/json'
-                    return resp
-
+            error = "OK"
+            # Invoke classification
+            #resp = ['sport', 'politics'] #shensis  error, res = predictor.predict(s)
+            ret = []
+            ret.append('sport')
+            ret.append('politics')
+            resp = ",".join(ret)
+            if error == "OK":
+               ret = assemble_response(sentences, resp, rid)
+               if synchronous == None or len(synchronous) == 0:
+                  return ret
+               else:
+                  return send_responce_to_remote_server(parameters, sentences, resp, rid)
+            else:
+               m = {"user_message": "Following error occured: %s." % error}
+               resp = app.make_response((json.dumps(m), 500,))
+               resp.mimetype = 'application/json'
+               return resp
         except Exception as e:
-            # First, log the error.
-            trace = traceback.format_exc()
-            exc_message = \
-                "An unexpected error has occurred for request: '%s' and stack trace: %s" % (repr(e), trace)
-            #app.logger.error(exc_message)
-
-            # Now, answer the request.
-            m = {"user_message": "An unexpected error has occurred."}
+            m = {"user_message": "An unexpected error has occurred while classification." + str(e)}
             resp = app.make_response((json.dumps(m), 500,))
             resp.mimetype = 'application/json'
             return resp
 
-        # Assemble the returned result.
-        try:
-            return assemble_response_v2(sentences, res, rid)
-        except Exception as e:
-            # First, log the error.
-            trace = traceback.format_exc()
-            exc_message = \
-                "An unexpected error has occurred for request: '%s' and stack trace: %s" % (repr(e), trace)
-
-            # Now, answer the request.
-            m = {"user_message": "An unexpected error has occurred."}
-            resp = app.make_response((json.dumps(m), 500,))
-            resp.mimetype = 'application/json'
-            return resp
-
-def assemble_response_v2(sentences, results, rid):
-    # Round up to 6th digit and just keep emotions around.
-    # if "application/json" in accept:
+def send_responce_to_remote_server(parameters, sentences, resp, rid):
+    targetServer = parameters['targetServer']
+    targetPort = int(parameters['targetPort'])
+    if targetServer == None or targetPort == None or len(targetServer) == 0:
+      m = {"user_message": "Either 'tartget server URL' or 'target port' parameters are not filled."}
+      resp = app.make_response((json.dumps(m), 500,))
+      resp.mimetype = 'application/json'
+      return resp
+    try:
+      res = 'Request Id: ' + rid + ' ,Sentences: ' + sentences + ' ,Detected classes: ' + resp	  
+      s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      s.connect((targetServer, targetPort))
+      s.sendall(escape(res)) #or to_bytes
+      s.close()	
+	  
+      m = {"user_message": "Responce has been sent to %s." % targetServer}
+      resp = app.make_response((json.dumps(m), 500,))
+      resp.mimetype = 'application/json'
+      return resp
+    except Exception as e:
+      m = {"user_message": "Failed to send result to specified server. Exception occured: " + str(e)}
+      resp = app.make_response((json.dumps(m), 500,))
+      resp.mimetype = 'application/json'
+      return resp
+	
+def assemble_response(sentences, results, rid):
     ret = {}
     if rid:
-        ret["id"]=rid
-    ret["sentences"] = [{"tokens": [ri for ri in r], "sentence": s} for s, r in zip(sentences, results)]
-    # Return the message.
+        ret["Request Id"] = rid
+    ret["Sentences"] = sentences
+    ret["Detected classes"] = results
     return jsonify(ret)
 
 if __name__ == '__main__':

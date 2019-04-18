@@ -1,0 +1,7 @@
+{
+  "id": "test123",
+  "synchronous": "true",
+  "parameters":{"modelType":"keras","handleType":"wordVectorsSum","targetServer":"http://localhost/api","targetPort":"80"},
+  "text": "فاجأ الكابتن رمزي صالح، قائد المنتخب الوطني السابق بكرة القدم، الجميع بالعودة مرة ثانية للاحتراف في الدوري المصري."
+}
+

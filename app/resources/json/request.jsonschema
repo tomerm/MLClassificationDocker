@@ -5,27 +5,35 @@
     "$id": "http://ibm.com/blueumbrella/tokenizer_request.json",
     "properties": {
         "id": {
-            "description": "The unique id of a request (optional)",
+            "description": "The unique id of a request (required)",
             "default": "",
             "examples": [
                 "req_001"
             ],
             "type": ["number", "string"]
         },
-        "language": {
-            "description": "The language of the tokenizer (required)",
-            "default": "",
+        "synchronous": {
+            "description": "Whether requestis synchronous or asynchronous (optional), if asynchronous, target server URL and port should be specified.",
+            "default": "true",
             "examples": [
-                "english"
+                "false"
             ],
             "type": "string"
         },
+        "text": {
+            "description": "Text input, (reuqired)",
+             "default": "",
+             "examples": [
+                "This is the sentence."
+             ],
+             "type": "string"
+        },
         "parameters": {
             "items":{
-                "description": "Extra parameters setting (optional)",
+                "description": "Extra parameters (optional). For 'asynchronous' request the emailForm, emailTo, email server, port and password to emailaccount on given server should be specified",
                 "default": [],
                 "examples": [
-                    "[\"algorithm=lucene\", \"ExtraOption=True\", \"This is yet another sentence to be tokenized.\"]"
+                    "[\"modelType=keras\", \"handleType=wordVectorsSum\", \"targetServer=http://1.2.3.4/api\",\"targetPort=587\"]"
                 ],
                 "patternProperties": {
                     "^.*$": {
@@ -38,18 +46,7 @@
                 },
                 "additionalProperties": false
             }
-        },
-        "text": {
-            "items": {
-                "description": "Text input, (reuqired, either sents or batch)",
-                "default": "",
-                "examples": [
-                    "[\"This is the first sentence.\", \"This is the second input\", \"This is yet another sentence to be tokenized.\"]"
-                ],
-                "type": "string"
-            },
-            "type": "array"
         }
     },
-    "required": ["language", "text"]
+    "required": ["id", "text"]
 }

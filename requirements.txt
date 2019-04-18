@@ -1,0 +1,7 @@
+gensim==3.6.0
+torch==1.0.0
+nltk==3.3
+keras==2.2.4
+sklearn==0.0
+pytorch_pretrained_bert==0.3.0
+tqdm==4.29.1
