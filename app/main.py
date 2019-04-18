@@ -4,7 +4,7 @@ import os.path
 import jsonschema
 import traceback
 import socket
-#from classification.predictor import Predictor
+from classification.predictor import Predictor
 
 #References the flask app
 app = Flask(__name__)
@@ -18,7 +18,7 @@ assert jsonschema.Draft4Validator.check_schema(request_schema) is None, "%s is n
 payloadSize = 10280 #2056 #KB
 payloadUnit = "KB"
 
-#predictor = Predictor()
+predictor = Predictor()
 
 """ The Health Check API returns the current health state of the server. """
 @app.route("/api/v1/healthcheck", methods=["GET"])
@@ -102,11 +102,7 @@ def analyze():
         try:
             error = "OK"
             # Invoke classification
-            #resp = ['sport', 'politics'] #shensis  error, res = predictor.predict(s)
-            ret = []
-            ret.append('sport')
-            ret.append('politics')
-            resp = ",".join(ret)
+            error, res = predictor.predict(sentences)
             if error == "OK":
                ret = assemble_response(sentences, resp, rid)
                if synchronous == None or len(synchronous) == 0:
@@ -119,7 +115,7 @@ def analyze():
                resp.mimetype = 'application/json'
                return resp
         except Exception as e:
-            m = {"user_message": "An unexpected error has occurred while classification." + str(e)}
+            m = {"user_message": "An unexpected error has occurred while classification. " + str(e)}
             resp = app.make_response((json.dumps(m), 500,))
             resp.mimetype = 'application/json'
             return resp
