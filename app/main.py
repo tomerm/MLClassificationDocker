@@ -102,7 +102,7 @@ def analyze():
         try:
             error = "OK"
             # Invoke classification
-            error, res = predictor.predict(sentences)
+            error, resp = predictor.predict(sentences)
             if error == "OK":
                ret = assemble_response(sentences, resp, rid)
                if synchronous == None or len(synchronous) == 0:
@@ -132,7 +132,7 @@ def send_responce_to_remote_server(parameters, sentences, resp, rid):
       res = 'Request Id: ' + rid + ' ,Sentences: ' + sentences + ' ,Detected classes: ' + resp	  
       s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       s.connect((targetServer, targetPort))
-      s.sendall(escape(res)) #or to_bytes
+      s.sendall(res.encode())
       s.close()	
 	  
       m = {"user_message": "Responce has been sent to %s." % targetServer}
