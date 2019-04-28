@@ -11,6 +11,7 @@ RUN export JAVA_HOME
 
 RUN pip install flask
 RUN pip install jsonschema
+RUN pip install torch torchvision
 RUN pip install -r requirements.txt
 python -m nltk.downloader all
 

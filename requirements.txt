@@ -1,8 +1,8 @@
-numpy==1.14.3
-gensim==3.6.0
-torch==1.0.0
+numpy==1.16.2
+gensim==3.4.0
+SciPy==1.2.1
 nltk==3.4
 keras==2.2.4
-sklearn==0.0
+sckit-learn==0.20.3
 pytorch_pretrained_bert==0.3.0
 tqdm==4.29.1
