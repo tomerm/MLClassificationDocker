@@ -4,9 +4,12 @@ import gensim
 import pickle
 import torch
 import nltk
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
 import subprocess
 from subprocess import run, PIPE
 from keras.models import load_model
+from keras import backend as K
 from sklearn.externals import joblib
 from .classification.bertClassifier import BertForMultiLabelSequenceClassification, getBertModel, bertPredicts
 
@@ -54,12 +57,21 @@ class Predictor(object):
                 self.error = "Missing resource(s)."
                 return
             self.vocabPath = resPath + self.Config["vocabPath"]
+        isFirstKeras = True
         for key, val in self.Config["models"].items():
             if not os.path.isfile(resPath + val["modelPath"]):
                 self.error = "Missing resource(s)."
                 return
             modelPath = resPath + val["modelPath"]
             if val["modelType"] == "keras":
+                if isFirstKeras:
+                    config = tf.ConfigProto(intra_op_parallelism_threads=4,
+                                        inter_op_parallelism_threads=4, allow_soft_placement=True,
+                                        device_count={'CPU': 4, 'GPU': 0})
+                    session = tf.Session(config=config)
+                    self.graph = session.graph
+                    set_session(session)
+                    isFirstKeras = False
                 self.models[key] = load_model(modelPath)
             elif val["modelType"] == "skl":
                 self.models[key] = joblib.load(modelPath)
@@ -145,6 +157,9 @@ class Predictor(object):
 
     def askModel(self, key, text):
         input = self.prepareData(key, text)
+        if self.Config["models"][key]["modelType"] == "keras":
+            with self.graph.as_default():
+                self.modelPredictions[key] = self.models[key].predict(input)
         if self.Config["models"][key]["modelType"] != "torch":
             self.modelPredictions[key] = self.models[key].predict(input)
         else:
