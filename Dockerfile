@@ -9,10 +9,11 @@ RUN apt-get update && apt-get install -y openjdk-8-jdk
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 RUN export JAVA_HOME
 
-RUN pip install flask
-RUN pip install jsonschema
+#RUN pip install flask
+#RUN pip install jsonschema
 RUN pip install torch torchvision
-RUN pip install -r requirements.txt
-python -m nltk.downloader all
+ADD requirements.txt /app/
+RUN pip install -r /app/requirements.txt
+RUN python -m nltk.downloader all
 
 COPY ./app /app

@@ -33,7 +33,7 @@
                 "description": "Extra parameters (optional). For 'asynchronous' request the emailForm, emailTo, email server, port and password to emailaccount on given server should be specified",
                 "default": [],
                 "examples": [
-                    "[\"modelType=keras\", \"handleType=wordVectorsSum\", \"targetServer=http://1.2.3.4/api\",\"targetPort=587\"]"
+                    "[\"targetServer=http://1.2.3.4/api\",\"targetPort=587\"]"
                 ],
                 "patternProperties": {
                     "^.*$": {

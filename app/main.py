@@ -101,7 +101,7 @@ def analyze():
     else:
         try:
             error = "OK"
-            # Invoke classification
+            # Invoke classification 
             error, resp = predictor.predict(sentences)
             if error == "OK":
                ret = assemble_response(sentences, resp, rid)
