@@ -11,10 +11,10 @@ from subprocess import run, PIPE
 from keras.models import load_model
 from keras import backend as K
 from sklearn.externals import joblib
-from app.classification.bertClassifier import BertForMultiLabelSequenceClassification, getBertModel, bertPredicts
+from classification.bertClassifier import BertForMultiLabelSequenceClassification, getBertModel, bertPredicts
 
-from app.classification.normalization import ArabicNormalizer
-from app.classification.data import *
+from classification.normalization import ArabicNormalizer
+from classification.data import *
 
 
 class Predictor(object):
