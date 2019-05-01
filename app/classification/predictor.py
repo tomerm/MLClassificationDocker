@@ -11,10 +11,10 @@ from subprocess import run, PIPE
 from keras.models import load_model
 from keras import backend as K
 from sklearn.externals import joblib
-from classification.bertClassifier import BertForMultiLabelSequenceClassification, getBertModel, bertPredicts
+from app.classification.bertClassifier import BertForMultiLabelSequenceClassification, getBertModel, bertPredicts
 
-from classification.normalization import ArabicNormalizer
-from classification.data import *
+from app.classification.normalization import ArabicNormalizer
+from app.classification.data import *
 
 
 class Predictor(object):
@@ -88,8 +88,11 @@ class Predictor(object):
             if not os.path.isfile(resPath + self.Config["w2v"]["modelPath"]):
                 self.error = "Missing resource(s)."
                 return
-            self.models["w2v"] = gensim.models.KeyedVectors.load_word2vec_format(
-                                        resPath + self.Config["w2v"]["modelPath"])
+            #self.models["w2v"] = gensim.models.KeyedVectors.load_word2vec_format(
+            #                            resPath + self.Config["w2v"]["modelPath"])
+            with open(resPath + self.Config["w2v"]["modelPath"], 'rb') as f:
+                    self.models["w2v"] = pickle.load(f)
+            f.close()
         if "indexer" in self.Config:
             if not os.path.isfile(resPath + self.Config["indexer"]):
                 self.error = "Missing resource(s)."
