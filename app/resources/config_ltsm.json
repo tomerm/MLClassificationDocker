@@ -1,0 +1,28 @@
+{
+    "reqid": "20190502000301",
+    "models": {
+        "Model1": {
+            "modelPath": "ltsm",
+            "modelType": "keras",
+            "w2v": "yes",
+            "indexer": "yes",
+            "handleType": "wordVectorsMatrix"
+        }
+    },
+    "w2v": {
+        "modelPath": "W2VModel.vec.pkl",
+        "ndim": 100
+    },
+    "indexer": "indexer.pkl",
+    "tokenization": {
+        "actualtoks": "yes",
+        "normalization": "yes",
+        "stopwords": "yes",
+        "expos": "PUNC,DT,IN,CD,PRP,RP,RB,W,PDT",
+        "extrawords": "",
+        "maxseqlen": 300,
+        "maxcharsseqlen": 512,
+        "rttaggerpath": "ArabicDocumentsTokenizer.jar"
+    },
+    "labels": "labels.txt"
+}

@@ -1,0 +1,23 @@
+{
+    "reqid": "20190430173145",
+    "models": {
+        "Model1": {
+            "modelPath": "svc",
+            "modelType": "skl",
+            "vectorizer": "yes",
+            "handleType": "vectorize"
+        }
+    },
+    "vectorizer": "wev.pkl",
+    "tokenization": {
+        "actualtoks": "yes",
+        "normalization": "yes",
+        "stopwords": "yes",
+        "expos": "PUNC,DT,IN,CD,PRP,RP,RB,W,PDT",
+        "extrawords": "",
+        "maxseqlen": 300,
+        "maxcharsseqlen": 512,
+        "rttaggerpath": "ArabicDocumentsTokenizer.jar"
+    },
+    "labels": "labels.txt"
+}
