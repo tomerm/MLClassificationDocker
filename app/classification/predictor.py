@@ -109,7 +109,7 @@ class Predictor(object):
             if not os.path.isfile(resPath + self.Config["ptBertModel"]):
                 self.error = "Missing resource(s)."
                 return
-        if "rttaggerpath" in self.Config["tokenization"]:
+        if "rttaggerpath" in self.Config["tokenization"] and self.Config["tokenization"]["actualtoks"] == "yes":
             if not os.path.isfile(resPath +  self.Config["tokenization"]["rttaggerpath"]):
                 self.error = "Missing resource(s)."
                 return

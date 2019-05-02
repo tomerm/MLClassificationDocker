@@ -26,12 +26,12 @@ def getWordVectorsMatrix(Config, text, indexer, w2vModel):
     for word, i in word_index.items():
         if i < maxWords:
             try:
-                embedding_vector = w2vModel.w2vModel[word]
+                embedding_vector = w2vModel[word]
             except KeyError:
                 continue
             if embedding_vector is not None:
                 matrix[i] = embedding_vector
-    return sequence, matrix
+    return sequence
 
 
 def getCharVectors(Config, text):
