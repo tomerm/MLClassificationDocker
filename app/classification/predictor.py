@@ -163,7 +163,7 @@ class Predictor(object):
         if self.Config["models"][key]["modelType"] == "keras":
             with self.graph.as_default():
                 self.modelPredictions[key] = self.models[key].predict(input)
-        if self.Config["models"][key]["modelType"] != "torch":
+        elif self.Config["models"][key]["modelType"] != "torch":
             self.modelPredictions[key] = self.models[key].predict(input)
         else:
             self.modelPredictions[key] = bertPredicts(self.models[key], self.vocabPath, self.labels,
