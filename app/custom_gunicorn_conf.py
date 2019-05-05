@@ -27,8 +27,11 @@ loglevel = use_loglevel
 workers = web_concurrency
 bind = use_bind
 keepalive = 120
-errorlog = "gunicorn_error.log"
-timeout = 100
+#errorlog = "gunicorn_error.log"
+#accesslog = "gunicorn_access.log" #'-'
+#access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+timeout = 30
+limit_request_line = 0
 # For debugging and testing
 log_data = {
     "loglevel": loglevel,
