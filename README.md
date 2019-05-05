@@ -27,6 +27,15 @@ Or alternatively, invoke in somewhere
 Send requests.
 Observer content of 'docker.log' file under folder from where 'docker logs' command has been started
 
+**Installation and configuring outside docker**
+Tested on Ubuntu 14
+- install all requirements mentioned in Dockerfile
+- install 'gunicorn' and 'meinheld' wsgi servers:
+pip install -U meinheld
+pip install -U gunicorn
+- from under 'app' folder run:
+gunicorn -k egg:meinheld#gunicorn_worker -c custom_gunicorn_conf.py main:app
+
 **Resources**
 
 All resources, needed for classification documents on the base of the pipe, created in the training and testing phase,
