@@ -31,8 +31,8 @@ Observer content of 'docker.log' file under folder from where 'docker logs' comm
 Tested on Ubuntu 14
 - install all requirements mentioned in Dockerfile
 - install 'gunicorn' and 'meinheld' wsgi servers:
-pip install -U meinheld
-pip install -U gunicorn
+pip3 install -U meinheld
+pip3 install -U gunicorn
 - from under 'app' folder run:
 gunicorn -k egg:meinheld#gunicorn_worker -c custom_gunicorn_conf.py main:app
 
