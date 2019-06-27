@@ -14,6 +14,6 @@ RUN export JAVA_HOME
 RUN pip install torch torchvision
 ADD requirements.txt /app/
 RUN pip install -r /app/requirements.txt
-RUN python -m nltk.downloader all
+RUN python -m nltk.downloader stopwords
 
 COPY ./app /app
