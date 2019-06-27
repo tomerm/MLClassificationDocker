@@ -40,7 +40,7 @@ class Predictor(object):
         self.rankThreshold = 0.5
         self.diffThreshold = 10
         if "labels" not in self.Config or not os.path.isfile(resPath + self.Config["labels"]):
-            self.error = "Missing labels."
+            self.error = "Missing file of labels."
             return
         else:
             with open(resPath + self.Config["labels"], "r", encoding="utf-8") as file:
@@ -49,18 +49,18 @@ class Predictor(object):
         self.labels = labels.split(",")
         if "ptBertModel" in self.Config:
             if not os.path.isfile(resPath + self.Config["ptBertModel"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["ptBertModel"]
                 return
             self.ptBertModel = resPath + self.Config["ptBertModel"]
         if "vocabPath" in self.Config:
             if not os.path.isfile(resPath + self.Config["vocabPath"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["vocabPath"]
                 return
             self.vocabPath = resPath + self.Config["vocabPath"]
         isFirstKeras = True
         for key, val in self.Config["models"].items():
             if not os.path.isfile(resPath + val["modelPath"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + val["modelPath"]
                 return
             modelPath = resPath + val["modelPath"]
             if val["modelType"] == "keras":
@@ -86,7 +86,7 @@ class Predictor(object):
                 return
         if  "w2v" in self.Config:
             if not os.path.isfile(resPath + self.Config["w2v"]["modelPath"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["w2v"]["modelPath"]
                 return
             #self.models["w2v"] = gensim.models.KeyedVectors.load_word2vec_format(
             #                            resPath + self.Config["w2v"]["modelPath"])
@@ -95,23 +95,23 @@ class Predictor(object):
             f.close()
         if "indexer" in self.Config:
             if not os.path.isfile(resPath + self.Config["indexer"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["indexer"]
                 return
             with open(resPath + self.Config["indexer"], 'rb') as handle:
                 self.models["indexer"] = pickle.load(handle)
         if "vectorizer" in self.Config:
             if not os.path.isfile(resPath + self.Config["vectorizer"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["vectorizer"]
                 return
             with open(resPath + self.Config["vectorizer"], 'rb') as handle:
                 self.models["vectorizer"] = pickle.load(handle)
         if "ptBertModel" in self.Config:
             if not os.path.isfile(resPath + self.Config["ptBertModel"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["ptBertModel"]
                 return
         if "rttaggerpath" in self.Config["tokenization"] and self.Config["tokenization"]["actualtoks"] == "yes":
             if not os.path.isfile(resPath +  self.Config["tokenization"]["rttaggerpath"]):
-                self.error = "Missing resource(s)."
+                self.error = "Missing resource: " + self.Config["tokenization"]["rttaggerpath"]
                 return
             taggerPath = resPath +  self.Config["tokenization"]["rttaggerpath"]
             self.jar = subprocess.Popen(
