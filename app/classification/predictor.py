@@ -36,6 +36,7 @@ class Predictor(object):
         self.device = "cpu"
         self.models = {}
         self.modelPredictions = {}
+        self.ranks = {}
         self.predictions = []
         self.rankThreshold = 0.5
         self.diffThreshold = 10
@@ -57,6 +58,13 @@ class Predictor(object):
                 self.error = "Missing resource: " + self.Config["vocabPath"]
                 return
             self.vocabPath = resPath + self.Config["vocabPath"]
+        if "consolidatedRank" in self.Config:
+            try:
+                self.rankThreshold = float(self.Config["consolidatedRank"])
+                if self.rankThreshold == 0:
+                    self.rankThreshold = 0.5
+            except ValueError:
+                self.rankThreshold = 0.5
         isFirstKeras = True
         for key, val in self.Config["models"].items():
             if not os.path.isfile(resPath + val["modelPath"]):
@@ -73,10 +81,13 @@ class Predictor(object):
                     set_session(session)
                     isFirstKeras = False
                 self.models[key] = load_model(modelPath)
+                self.ranks[key] = 0.5
             elif val["modelType"] == "skl":
                 self.models[key] = joblib.load(modelPath)
+                self.ranks[key] = 1.0
             elif val["modelType"] == "torch":
                 self.models[key] = getBertModel(modelPath, self.ptBertModel, len(self.labels), self.device)
+                self.ranks[key] = 0.5
             else:
                 self.error = "Unsupported model's type."
                 return
@@ -84,6 +95,13 @@ class Predictor(object):
                         "wordVectorsSum", "wordVectorsMatrix", "charVectors", "vectorize"]:
                 self.error = "Unknown or unsupported type of input data handling."
                 return
+            if "rankThreshold" in val and val["modelType"] != "skl":
+                try:
+                    self.ranks[key] = float(val["rankThreshold"])
+                    if self.ranks[key] == 0:
+                        self.ranks[key] = 0.5
+                except ValueError:
+                    self.ranks[key] = 0.5
         if  "w2v" in self.Config:
             if not os.path.isfile(resPath + self.Config["w2v"]["modelPath"]):
                 self.error = "Missing resource: " + self.Config["w2v"]["modelPath"]
@@ -187,11 +205,11 @@ class Predictor(object):
         for key, res in self.modelPredictions.items():
             isFound = False
             for i in range(len(self.labels)):
-                if res[0][i] >= self.rankThreshold:
+                if res[0][i] >= self.ranks[key]:
                     self.predictions[i] += 1
                     isFound = True
         for i in range(len(self.predictions)):
-            if self.predictions[i] >= qModels / 2.0:
+            if self.predictions[i] >= qModels * self.rankThreshold:
                 self.predictions[i] = 1
             else:
                 self.predictions[i] = 0
