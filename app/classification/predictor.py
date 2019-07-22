@@ -95,13 +95,19 @@ class Predictor(object):
                         "wordVectorsSum", "wordVectorsMatrix", "charVectors", "vectorize"]:
                 self.error = "Unknown or unsupported type of input data handling."
                 return
-            if "rankThreshold" in val and val["modelType"] != "skl":
+            if "rankThreshold" in val:
                 try:
                     self.ranks[key] = float(val["rankThreshold"])
                     if self.ranks[key] == 0:
-                        self.ranks[key] = 0.5
+                        if val["modelType"] != "skl":
+                            self.ranks[key] = 0.5
+                        else:
+                            self.ranks[key] = 1.0
                 except ValueError:
-                    self.ranks[key] = 0.5
+                    if val["modelType"] != "skl":
+                        self.ranks[key] = 0.5
+                    else:
+                        self.ranks[key] = 1.0
         if  "w2v" in self.Config:
             if not os.path.isfile(resPath + self.Config["w2v"]["modelPath"]):
                 self.error = "Missing resource: " + self.Config["w2v"]["modelPath"]
