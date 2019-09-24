@@ -1,13 +1,13 @@
 import numpy
 from keras.preprocessing.sequence import pad_sequences
 
-def getWordVectorsSum(Config, text, w2vModel):
+def get_word_vectors_sum(Config, text, w2v_model):
     ndim = Config["w2v"]["ndim"]
     vec = numpy.zeros(ndim).reshape((1, ndim))
     count = 0.
     for word in text.split():
         try:
-            vec += w2vModel[word].reshape((1, ndim))
+            vec += w2v_model[word].reshape((1, ndim))
             count += 1.
         except KeyError:
             continue
@@ -16,7 +16,7 @@ def getWordVectorsSum(Config, text, w2vModel):
     return vec
 
 
-def getWordVectorsMatrix(Config, text, indexer, w2vModel):
+def get_word_vectors_matrix(Config, text, indexer, w2v_model):
     ndim = Config["w2v"]["ndim"]
     maxWords = 300000
     sequence = pad_sequences(indexer.texts_to_sequences([text]), maxlen=int(Config["tokenization"]["maxseqlen"]))
@@ -26,7 +26,7 @@ def getWordVectorsMatrix(Config, text, indexer, w2vModel):
     for word, i in word_index.items():
         if i < maxWords:
             try:
-                embedding_vector = w2vModel[word]
+                embedding_vector = w2v_model[word]
             except KeyError:
                 continue
             if embedding_vector is not None:
@@ -34,8 +34,8 @@ def getWordVectorsMatrix(Config, text, indexer, w2vModel):
     return sequence
 
 
-def getCharVectors(Config, text):
-    chDict = getDictionary()
+def get_char_vectors(Config, text):
+    chDict = get_dictionary()
     maxLen = int(Config["tokenization"]["maxcharsseqlen"])
     str2ind = numpy.zeros(maxLen, dtype='int64')
     strLen = min(len(text), maxLen)
@@ -45,7 +45,7 @@ def getCharVectors(Config, text):
             str2ind[i - 1] = chDict[c]
     return str2ind.reshape(1, maxLen)
 
-def getDictionary():
+def get_dictionary():
     start = ord('\u0600')
     end = ord('\u06ff')
     alphabet = ''
@@ -57,10 +57,10 @@ def getDictionary():
     for i in range(start, end + 1):
         ch = chr(i)
         alphabet = alphabet + ch
-    charDict = {}
+    char_dict = {}
     for idx, char in enumerate(alphabet):
-        charDict[char] = idx + 1
-    return charDict
+        char_dict[char] = idx + 1
+    return char_dict
 
 def vectorize(Config, text, vectorizer):
     return vectorizer.transform([text])

@@ -56,15 +56,15 @@ class InputFeatures(object):
         self.segment_ids = segment_ids
         self.label_id = label_id
 
-def getBertModel(path, ptPath, num_labs, device):
+def get_bert_model(path, ptPath, num_labs, device):
     state_dict = torch.load(path)
     model = BertForMultiLabelSequenceClassification.from_pretrained(ptPath, state_dict=state_dict, num_labels=num_labs)
     model.to(device)
     return model
 
-def bertPredicts(model, vocabPath, label_list, max_seq_length, text, device):
+def bert_predicts(model, vocab_path, label_list, max_seq_length, text, device):
     model.to(device)
-    tokenizer = BertTokenizer(vocabPath)
+    tokenizer = BertTokenizer(vocab_path)
     eval_examples = [InputExample(guid="id", text_a=text)]
     eval_features = convert_example_to_feature(eval_examples, label_list, max_seq_length, tokenizer)
     all_input_ids = torch.tensor([f.input_ids for f in eval_features], dtype=torch.long)
